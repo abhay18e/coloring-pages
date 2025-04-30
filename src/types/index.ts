@@ -1,20 +1,14 @@
-// File: types/index.ts
-// Removed 'eyedropper' from Tool type
-export type Tool = "fill" | "erase" | "pan";
+// types/index.ts
 
-export interface ZoomPanState {
-  scale: number;
-  offset: { x: number; y: number };
+// Removed previous types (Tool, Point, CanvasRefs, ColouringImageInfo)
+
+export interface R2ImageInfo {
+  key: string; // Original R2 object key
+  category: string;
+  slug: string; // Derived from filename
+  name: string; // Derived from filename
+  src: string; // Public URL
+  alt: string; // From R2 metadata
 }
 
-export interface Point {
-  x: number;
-  y: number;
-}
-
-export interface CanvasRefs {
-  baseCanvasRef: React.RefObject<HTMLCanvasElement>;
-  colorCanvasRef: React.RefObject<HTMLCanvasElement>;
-  displayCanvasRef: React.RefObject<HTMLCanvasElement>;
-}
-//--------End File---------
+// Add other types if you need them later, e.g., for pagination state

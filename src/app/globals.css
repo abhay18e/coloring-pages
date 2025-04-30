@@ -1,63 +1,37 @@
+/* app/globals.css */
 @import "tailwindcss";
 
-/* Basic body styling */
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  body {
+    @apply bg-gray-100 text-gray-800; /* Use Tailwind classes */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #__next {
+    min-height: 100%;
+    width: 100%;
+  }
+
+  /* Keep no-scrollbar if needed elsewhere */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* Remove color input style */
+  /* Remove canvas style */
 }
 
-/* Ensure root layout fills viewport height */
-html,
-body,
-#__next {
-  height: 100%;
-  width: 100%;
-  overflow: hidden; /* Prevent scrollbars on the body itself */
-}
-
-/* Hide scrollbars for specific elements if needed (use with caution) */
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
-}
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-/* Style for the HTML5 color input */
-input[type="color"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 32px; /* Match button size or desired size */
-  height: 32px;
-  background-color: transparent; /* Let the ::color-swatch show */
-  border: none;
-  cursor: pointer;
-  padding: 0; /* Remove default padding */
-  border-radius: 4px; /* Add some rounding */
-  overflow: hidden; /* Clip the swatch */
-}
-input[type="color"]::-webkit-color-swatch {
-  border-radius: 4px; /* Match parent rounding */
-  border: 1px solid #ccc; /* Add a subtle border to the swatch */
-  padding: 0;
-}
-input[type="color"]::-moz-color-swatch {
-  border-radius: 4px; /* Match parent rounding */
-  border: 1px solid #ccc;
-  padding: 0;
-}
-
-/* File: app/globals.css */
-
-/* Improve canvas rendering on scaling */
-canvas {
-  image-rendering: -moz-crisp-edges; /* Firefox */
-  image-rendering: -webkit-crisp-edges; /* Webkit (Chrome, Safari) */
-  image-rendering: pixelated; /* Future browsers */
-  image-rendering: crisp-edges; /* Current standard */
+/* Add shadow-up utility if needed for fixed footer */
+.shadow-up {
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05), 0 -4px 10px rgba(0, 0, 0, 0.05);
 }
