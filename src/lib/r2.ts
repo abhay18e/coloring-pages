@@ -84,6 +84,9 @@ const s3Client =
 
 console.log(`S3 Client Initialized for API calls: ${!!s3Client}`);
 
+// File: lib/r2.ts
+// ... (keep imports, R2 Configuration, S3 client setup, etc. as before) ...
+
 // --- Function to list all objects in the bucket and get their metadata ---
 export async function listAllR2Images(): Promise<R2ImageInfo[]> {
   // --- Debug: Check if S3 client is available and public URL base is set ---
@@ -101,7 +104,7 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
   }
 
   console.log("--- Listing R2 Bucket Contents (Debug) ---");
-  let allImages: R2ImageInfo[] = [];
+  const allImages: R2ImageInfo[] = [];
   let continuationToken: string | undefined;
   let page = 0;
 
@@ -113,32 +116,21 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
       // Use ListObjectsV2Command to get a flat list of all objects
       const command = new ListObjectsV2Command({
         Bucket: R2_BUCKET_NAME, // API command needs the bucket name
-        // Delimiter is removed to list all objects recursively
-        // Delimiter: "/",
         ContinuationToken: continuationToken,
-        // MaxKeys: 100 // Optional limit per API request for debugging
       });
 
       console.log(`Sending ListObjectsV2Command with params:`, command.input);
-
       const response = await s3Client.send(command);
 
       // --- Debug: Log the raw response for this page ---
       console.log(`--- Raw API Response Page ${page} ---`);
-      console.log(`IsTruncated: ${response.IsTruncated}`); // True if there are more pages
-      console.log(`NextContinuationToken: ${response.NextContinuationToken}`); // Token for the next page
-      console.log(`KeyCount: ${response.KeyCount}`); // Total objects + prefixes in this response
-      console.log(`Contents count: ${response.Contents?.length || 0}`); // Files listed in this response
-      console.log(
-        `CommonPrefixes count: ${response.CommonPrefixes?.length || 0}`
-      ); // Folders listed (usually empty without Delimiter)
+      console.log(`IsTruncated: ${response.IsTruncated}`);
+      console.log(`NextContinuationToken: ${response.NextContinuationToken}`);
+      console.log(`KeyCount: ${response.KeyCount}`);
+      console.log(`Contents count: ${response.Contents?.length || 0}`);
       console.log(
         "Contents (Object Keys):",
         response.Contents?.map((obj) => obj.Key)
-      );
-      console.log(
-        "CommonPrefixes:",
-        response.CommonPrefixes?.map((prefix) => prefix.Prefix)
       );
       console.log("-----------------------------------");
 
@@ -148,14 +140,11 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
           `Processing ${response.Contents.length} objects (files) on page ${page}...`
         );
         for (const object of response.Contents) {
-          const key = object.Key; // The object key includes the full path, e.g., "animals/image.jpg"
+          const key = object.Key;
           if (!key) {
             console.log("Skipping object with no key.");
             continue;
           }
-
-          // Skip keys that represent directories themselves (e.g., "animals/")
-          // These sometimes appear in flat listings depending on how they were created.
           if (key.endsWith("/")) {
             console.log(`Skipping directory key: ${key}`);
             continue;
@@ -163,77 +152,76 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
 
           // Extract category and filename from the full object key
           const parts = key.split("/");
-          let category = "uncategorized"; // Default category if the key has no '/'
-          let fileName = key; // Default filename is the whole key if no '/'
+          let category = "uncategorized";
+          let fileName = key; // Fallback filename is the whole key
 
           if (parts.length > 1) {
-            // If the key contains at least one '/', it's in a subdirectory
-            category = parts[0]; // The first part before the first '/' is the category
-            fileName = parts[parts.length - 1]; // The last part after the last '/' is the filename
+            category = parts[0];
+            fileName = parts[parts.length - 1]; // The last part is the filename
             console.log(
-              `Key "${key}" parsed: category='${category}', fileName='${fileName}'.`
+              `Key "${key}" parsed: category='${category}', fileName='${fileName}' (fallback name).`
             );
           } else {
             console.log(
-              `Key "${key}" has no '/', treating as uncategorized file.`
+              `Key "${key}" has no '/', treating as uncategorized file. Fallback name: '${fileName}'.`
             );
           }
 
-          // Generate a slug from the filename
+          // Generate a slug from the filename (slug should usually be based on filename for URL consistency)
           const slug = fileName
             .replace(/\.[^/.]+$/, "") // Remove file extension
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with hyphens
-            .replace(/^-+|-+$/g, ""); // Trim leading/trailing hyphens
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
 
-          // Fetch metadata for the alt text (optional, but good practice)
+          // Fetch metadata for title and alt text
           try {
             const headCommand = new HeadObjectCommand({
-              Bucket: R2_BUCKET_NAME, // HeadObject needs the bucket name
-              Key: key, // HeadObject needs the object key
+              Bucket: R2_BUCKET_NAME,
+              Key: key,
             });
-            // --- Debug: Log HeadObject call (can be chatty) ---
-            // console.log(`Fetching metadata for: ${key}`);
             const headResponse = await s3Client.send(headCommand);
-            // R2 metadata keys are typically lowercase, e.g., 'alt'
+
+            // *** UPDATED: Fetch 'title' from metadata, fallback to fileName ***
+            // R2 metadata keys are typically lowercase, e.g., 'title', 'alt'
+            const nameFromMetadata = headResponse.Metadata?.title || fileName; // Use 'title' metadata or the derived filename as fallback
             const alt =
               headResponse.Metadata?.alt || `Image in ${category} category`; // Use 'alt' metadata or a default
 
-            console.log(`Metadata fetched for ${key}. Alt text: '${alt}'.`);
+            console.log(
+              `Metadata fetched for ${key}. Name (from title or fallback): '${nameFromMetadata}', Alt text: '${alt}'.`
+            );
 
-            // --- Construct the public URL by combining the PUBLIC_URL_BASE and the object key ---
-            // Example: "https://pub-key.r2.dev/bucket-name" + "/" + "animals/image.jpg"
-            // Result: "https://pub-key.r2.dev/bucket-name/animals/image.jpg"
             const publicSrc = `${R2_PUBLIC_URL_BASE}/${key}`;
             console.log(`Generated public URL for ${key}: ${publicSrc}`);
 
-            // Add the image information to the results array
             allImages.push({
               category: category,
               slug: slug,
-              name: fileName, // Use the extracted filename
-              src: publicSrc, // Use the constructed public URL
-              alt: alt, // Use the fetched alt text
-              key: key, // Store the original object key for reference
+              name: nameFromMetadata, // *** USE THE FETCHED/FALLBACK NAME ***
+              src: publicSrc,
+              alt: alt,
+              key: key,
             });
             console.log(`Added image info for: ${key}`);
           } catch (headError: any) {
-            // Catch errors fetching metadata for a *single* object
             console.error(
               `Failed to get metadata for ${key}:`,
               headError.message
             );
-            // If metadata fetch fails, still include the image but with a default alt text
-            const publicSrc = `${R2_PUBLIC_URL_BASE}/${key}`; // Still generate the URL
+            // If metadata fetch fails, use filename as name and a default alt text
+            const publicSrc = `${R2_PUBLIC_URL_BASE}/${key}`;
             allImages.push({
               category: category,
               slug: slug,
-              name: fileName,
+              name: fileName, // *** FALLBACK TO FILENAME ON ERROR ***
               src: publicSrc,
               alt: `Image in ${category} category (metadata fetch failed)`,
               key: key,
             });
-            console.log(`Added image info with default alt for: ${key}`);
+            console.log(
+              `Added image info with fallback name and default alt for: ${key}`
+            );
           }
         }
       } else {
@@ -242,28 +230,24 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
         );
       }
 
-      // Update continuation token for the next iteration
       continuationToken = response.NextContinuationToken;
       console.log(
         `End of page ${page}. NextContinuationToken: ${continuationToken}`
       );
-    } while (continuationToken); // Continue looping as long as there are more pages
+    } while (continuationToken);
   } catch (error: any) {
-    // Catch errors during the main listing process
     console.error("!!! Error listing R2 objects !!!", error);
     console.error("Error details:", {
       message: error.message,
-      code: error.Code, // S3/R2 error code if available
-      statusCode: error.$metadata?.httpStatusCode, // HTTP status code if available
+      code: error.Code,
+      statusCode: error.$metadata?.httpStatusCode,
     });
-    // Re-throw the error after logging for visibility in the terminal
     throw new Error("Failed to fetch image list from R2: " + error.message);
   }
 
   // --- Debug: Final Summary ---
   console.log(`--- R2 Listing Complete ---`);
   console.log(`Successfully listed and processed ${allImages.length} images.`);
-  // Log the categories found from the collected images
   const foundCategories = Array.from(
     new Set(allImages.map((img) => img.category))
   ).sort();
@@ -273,10 +257,6 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
     }`
   );
   console.log("---------------------------");
-
-  // You might sort the `allImages` array here if a global sort order is desired before pagination slicing
-  // For example, sorting by key:
-  // allImages.sort((a, b) => a.key.localeCompare(b.key));
 
   return allImages;
 }

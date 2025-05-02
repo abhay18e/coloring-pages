@@ -3,7 +3,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-100 text-gray-800; /* Use Tailwind classes */
+    @apply bg-white text-gray-900; /* Lighter background for clean look */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -26,12 +26,22 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
-
-  /* Remove color input style */
-  /* Remove canvas style */
 }
 
-/* Add shadow-up utility if needed for fixed footer */
+/* Adding some Apple-inspired design elements */
+.apple-card {
+  @apply bg-white rounded-xl shadow-sm transition-all duration-300 hover:shadow-md border border-gray-100;
+}
+
+.apple-button {
+  @apply px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.apple-secondary-button {
+  @apply px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 bg-gray-100 text-gray-800 hover:bg-gray-200;
+}
+
+/* Add shadow-up utility for fixed footer */
 .shadow-up {
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05), 0 -4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.03), 0 -4px 10px rgba(0, 0, 0, 0.03);
 }

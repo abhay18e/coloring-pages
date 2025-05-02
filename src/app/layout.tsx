@@ -1,15 +1,37 @@
+// File: layout.tsx
 // app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import Script from "next/script"; // Import Script component
 
 const inter = Inter({ subsets: ["latin"] });
 
+const title = "FreeColoringPages - Printable Coloring Sheets for Everyone";
+const description =
+  "Browse our collection of free printable coloring pages for kids and adults. Download and print high-quality coloring sheets.";
+const image = "/logo.png"; // replace with your actual OG image path
+const url = "http://freecoloringpages.fun/"; // update to your actual domain
+
 export const metadata: Metadata = {
-  title: "Image Gallery - Cloudflare R2",
-  description:
-    "A simple image gallery powered by Cloudflare R2 and Next.js static export.",
+  metadataBase: new URL("http://freecoloringpages.fun"),
+  title: title,
+  description: description,
+  openGraph: {
+    title: title,
+    description: description,
+    url: url,
+    images: [{ url: image }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [image],
+  },
+  icons: {
+    icon: "/logo.png", // change this to a separate icon.png when available
+  },
 };
 
 export default function RootLayout({
@@ -19,36 +41,71 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* Google Analytics Scripts placed conceptually in head */}
+      <head>
+        <Script
+          strategy="lazyOnload"
+          src="https://www.googletagmanager.com/gtag/js?id=G-X6FYLSH623"
+        />
+        <Script strategy="lazyOnload" id="google-analytics">
+          {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-X6FYLSH623');
+        `}
+        </Script>
+      </head>
       <body
         className={`${inter.className} antialiased flex flex-col min-h-screen`}
       >
-        {" "}
-        {/* Add flex and min-h */}
-        {/* Simple Header */}
-        <header className="bg-white shadow-sm p-3 sticky top-0 z-10">
-          <nav className="container mx-auto flex justify-between items-center">
+        {/* Clean, minimal Apple-inspired header */}
+        <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-gray-100">
+          <nav className="container mx-auto flex justify-between items-center py-4 px-6">
             <Link
               href="/"
-              className="text-xl font-semibold text-gray-800 tracking-tight"
+              className="text-2xl font-semibold text-gray-900 tracking-tight flex items-center"
             >
-              R2 Gallery
+              <svg
+                className="w-7 h-7 mr-2 text-blue-600"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 2l.642.218c1.648.553 3.023 1.786 3.053 4.275l.001.195.036 2.061a2.45 2.45 0 0 0 1.954 2.21l.214.041-2.568 8.309a.5.5 0 0 1-.474.341h-5.716a.5.5 0 0 1-.474-.341L6.1 11l.213-.041a2.45 2.45 0 0 0 1.955-2.21l.035-2.061C8.335 4.029 9.71 2.797 11.357 2.244L12 2z"></path>
+                <path d="M7 11h10v2a5 5 0 0 1-10 0v-2z"></path>
+              </svg>
+              <span>FreeColoringPages</span>
             </Link>
-            {/* Navigation links - keep simple for now */}
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-blue-600 text-sm"
-            >
-              Home
-            </Link>
+            {/* Navigation links with clean design */}
+            <div className="flex space-x-6">
+              <Link
+                href="/"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+              >
+                Home
+              </Link>
+            </div>
           </nav>
         </header>
+
         {/* Main content area - flex-grow to fill space */}
-        <main className="container mx-auto p-4 flex-grow">{children}</main>
-        {/* Simple Footer */}
-        <footer className="text-center py-4 mt-auto text-xs text-gray-500 border-t bg-gray-100">
-          {" "}
-          {/* mt-auto pushes to bottom */}
-          Powered by Cloudflare R2 & Next.js Static Export
+        <main className="container mx-auto py-8 px-6 flex-grow">
+          {children}
+        </main>
+
+        {/* Simple footer */}
+        <footer className="bg-gray-50 border-t border-gray-100 py-6 px-6">
+          <div className="container mx-auto text-center text-gray-500 text-sm">
+            <p>
+              &copy; {new Date().getFullYear()} FreeColoringPages. All rights
+              reserved.
+            </p>
+          </div>
         </footer>
       </body>
     </html>
