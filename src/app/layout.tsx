@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     images: [image],
   },
   icons: {
-    icon: "/logo.png", // change this to a separate icon.png when available
+    icon: "/icon.png", // change this to a separate icon.png when available
   },
 };
 
