@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Script from "next/script"; // Import Script component
+import Image from "next/image"; // Import Next.js Image component
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -67,18 +68,14 @@ export default function RootLayout({
               href="/"
               className="text-2xl font-semibold text-gray-900 tracking-tight flex items-center"
             >
-              <svg
-                className="w-7 h-7 mr-2 text-blue-600"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 2l.642.218c1.648.553 3.023 1.786 3.053 4.275l.001.195.036 2.061a2.45 2.45 0 0 0 1.954 2.21l.214.041-2.568 8.309a.5.5 0 0 1-.474.341h-5.716a.5.5 0 0 1-.474-.341L6.1 11l.213-.041a2.45 2.45 0 0 0 1.955-2.21l.035-2.061C8.335 4.029 9.71 2.797 11.357 2.244L12 2z"></path>
-                <path d="M7 11h10v2a5 5 0 0 1-10 0v-2z"></path>
-              </svg>
+              <Image
+                src="/icon.png"
+                alt="FreeColoringPages Logo"
+                width={28} // Corresponds to w-7 (1.75rem * 16px/rem)
+                height={28} // Corresponds to h-7 (1.75rem * 16px/rem)
+                unoptimized={true}
+                className="w-7 h-7 mr-2"
+              />
               <span>FreeColoringPages</span>
             </Link>
             {/* Navigation links with clean design */}

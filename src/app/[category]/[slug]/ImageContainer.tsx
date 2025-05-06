@@ -16,14 +16,32 @@ type ImageProps = {
 
 export default function ImageContainer({ image }: ImageProps) {
   // Handle download button click
-  const handleDownload = () => {
-    // Create a link element
-    const link = document.createElement("a");
-    link.href = image.src;
-    link.download = `${image.name}.jpg`; // You might want to use the actual file extension
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(image.src, { mode: "cors" });
+      if (!response.ok) throw new Error("Failed to fetch image");
+
+      const blob = await response.blob();
+
+      const urlParts = image.src.split(".");
+      const extension =
+        urlParts.length > 1 ? urlParts[urlParts.length - 1] : "jpg";
+      const filename = `${image.name.replace(/\s+/g, "-")}.${extension}`;
+
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Download failed. Please try again later.");
+    }
   };
 
   // Handle print button click
