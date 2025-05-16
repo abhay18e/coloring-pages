@@ -24,6 +24,7 @@ export const R2_BUCKET_NAME =
 const R2_PUBLIC_URL_BASE = process.env.R2_PUBLIC_URL_BASE || "";
 
 // --- Debug: Log Environment Variables ---
+/*
 console.log("--- R2 Configuration Check (Debug) ---");
 console.log(`R2_ACCOUNT_ID: ${R2_ACCOUNT_ID ? "Loaded" : "MISSING"}`);
 console.log(`R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID ? "Loaded" : "MISSING"}`);
@@ -33,7 +34,7 @@ console.log(
 console.log(`R2_BUCKET_NAME: ${R2_BUCKET_NAME ? "Loaded" : "MISSING"}`);
 console.log(`R2_PUBLIC_URL_BASE: ${R2_PUBLIC_URL_BASE ? "Loaded" : "MISSING"}`); // Debug the crucial public URL variable
 console.log("--------------------------------------");
-
+*/
 // Ensure essential API variables are available
 if (
   !R2_ACCOUNT_ID ||

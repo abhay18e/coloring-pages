@@ -1,12 +1,14 @@
-// File: [category]/page.tsx
+// File: app/[category]/page.tsx
 // app/[category]/page.tsx
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { listAllR2Images } from "@/lib/r2"; // Import R2 function
-// R2ImageInfo type is imported implicitly via listAllR2Images return type
+import { listAllR2Images } from "@/lib/r2";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 const IMAGES_PER_PAGE = 10; // Increased number of images per page
+const SITE_BASE_URL = "https://freecoloringpages.fun";
 
 // Generate static parameters for each category
 export async function generateStaticParams() {
@@ -23,6 +25,56 @@ export async function generateStaticParams() {
   }));
 }
 
+// Generate metadata for category page (Page 1)
+export async function generateMetadata({
+  params,
+}: {
+  params: { category: string };
+}): Promise<Metadata> {
+  const { category } = params;
+  const displayCategoryName = category.replace(/-/g, " ");
+  const capitalizedCategoryName =
+    displayCategoryName.charAt(0).toUpperCase() + displayCategoryName.slice(1);
+
+  const allImages = await listAllR2Images();
+  const categoryImages = allImages.filter((img) => img.category === category);
+  const totalImages = categoryImages.length;
+  const totalPages = Math.ceil(totalImages / IMAGES_PER_PAGE);
+
+  if (totalImages === 0) {
+    // Or handle as appropriate if category might not exist
+    return {
+      title: `Category: ${capitalizedCategoryName}`,
+      description: `free printable ${displayCategoryName.toLowerCase()}.`,
+    };
+  }
+
+  const pageTitle = `${capitalizedCategoryName}  - Free & Printable`;
+  const pageDescription = `Explore dozens of free printable ${displayCategoryName.toLowerCase()}  for kids and adults. High-quality designs ready to download. Page 1 of ${totalPages}.`;
+  const canonicalUrl = `${SITE_BASE_URL}/${category}`;
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: canonicalUrl,
+      type: "website", // or "object" if more appropriate for a category page
+      // images: [categoryImages[0]?.src || '/default-category-image.png'] // Add a representative image if possible
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: pageTitle,
+      description: pageDescription,
+      // images: [categoryImages[0]?.src || '/default-category-image.png']
+    },
+  };
+}
+
 export default async function CategoryPage({
   params,
 }: {
@@ -32,6 +84,11 @@ export default async function CategoryPage({
 
   const allImages = await listAllR2Images();
   const categoryImages = allImages.filter((img) => img.category === category);
+
+  if (categoryImages.length === 0 && category !== "_placeholder") {
+    // Check for placeholder if used in generateStaticParams
+    notFound();
+  }
 
   categoryImages.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -44,12 +101,51 @@ export default async function CategoryPage({
   const imagesForPage = categoryImages.slice(startIndex, endIndex);
 
   const nextPage = currentPage < totalPages ? currentPage + 1 : null;
-  const prevPage = null; // Always null on the first page route
+  // prevPage is null for the base category page
 
   const displayCategoryName = category.replace(/-/g, " ");
+  const capitalizedCategoryName =
+    displayCategoryName.charAt(0).toUpperCase() + displayCategoryName.slice(1);
+  const canonicalUrl = `${SITE_BASE_URL}/${category}`;
+
+  // Structured Data for CollectionPage and ItemList
+  const collectionPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${capitalizedCategoryName} Coloring Pages - Page 1`,
+    description: `Explore free printable ${displayCategoryName.toLowerCase()} coloring pages. Page 1 of ${totalPages}.`,
+    url: canonicalUrl,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: imagesForPage.map((image, index) => {
+        const titlePart = image.name.replace(/\s+/g, "-").toLowerCase();
+        const filenamePart = image.key.split("/").pop() || "";
+        const imageSlug = `${titlePart}-${filenamePart}`;
+        return {
+          "@type": "ListItem",
+          position: startIndex + index + 1,
+          item: {
+            "@type": "ImageObject",
+            name: image.name,
+            contentUrl: image.src,
+            thumbnailUrl: image.src, // Use main image src as thumbnail, or provide a specific one
+            description: image.alt || `Coloring page of ${image.name}`,
+            url: `${SITE_BASE_URL}/${category}/${imageSlug}`,
+            isPartOf: { "@id": canonicalUrl }, // Points back to this CollectionPage
+          },
+        };
+      }),
+    },
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionPageSchema),
+        }}
+      />
       {/* Breadcrumb with cleaner styling */}
       <nav className="text-sm mb-8 flex items-center text-gray-500">
         <Link href="/" className="hover:text-blue-600 transition-colors">
@@ -76,7 +172,7 @@ export default async function CategoryPage({
       {/* Header section */}
       <div className="mb-10 border-b border-gray-100 pb-6">
         <h1 className="text-4xl font-bold mb-4 text-gray-900 capitalize">
-          {displayCategoryName} Coloring Pages
+          {capitalizedCategoryName} 
         </h1>
         <p className="text-gray-600">
           Browse and download free {displayCategoryName.toLowerCase()} coloring
@@ -92,7 +188,6 @@ export default async function CategoryPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
           {imagesForPage.map((image) => {
-            // Create the new slug format: title-filename
             const titlePart = image.name.replace(/\s+/g, "-").toLowerCase();
             const filenamePart = image.key.split("/").pop() || "";
             const newSlug = `${titlePart}-${filenamePart}`;
@@ -106,7 +201,9 @@ export default async function CategoryPage({
                 <div className="aspect-square w-full relative bg-gray-50">
                   <Image
                     src={image.src}
-                    alt={image.alt}
+                    alt={
+                      image.alt || `Coloring page thumbnail of ${image.name}`
+                    }
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-contain p-2"

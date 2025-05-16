@@ -1,4 +1,4 @@
-// File: layout.tsx
+// File: app/layout.tsx
 // app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -9,29 +9,42 @@ import Image from "next/image"; // Import Next.js Image component
 
 const inter = Inter({ subsets: ["latin"] });
 
+const siteBaseUrl = "https://freecoloringpages.fun"; // Use HTTPS
+
 const title = "FreeColoringPages - Printable Coloring Sheets for Everyone";
 const description =
   "Browse our collection of free printable coloring pages for kids and adults. Download and print high-quality coloring sheets.";
-const image = "/logo.png"; // replace with your actual OG image path
-const url = "http://freecoloringpages.fun/"; // update to your actual domain
+const image = "/logo.png"; // replace with your actual OG image path, ensure it's accessible via siteBaseUrl + image
+const url = siteBaseUrl + "/";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("http://freecoloringpages.fun"),
-  title: title,
+  metadataBase: new URL(siteBaseUrl), // Updated to HTTPS
+  title: {
+    default: title,
+    template: `%s | FreeColoringPages.fun`, // Template for page-specific titles
+  },
   description: description,
   openGraph: {
     title: title,
     description: description,
     url: url,
-    images: [{ url: image }],
+    images: [{ url: image }], // Next.js will resolve this to a full URL using metadataBase
     type: "website",
+    siteName: "FreeColoringPages.fun",
   },
   twitter: {
     card: "summary_large_image",
-    images: [image],
+    title: title,
+    description: description,
+    images: [image], // Next.js will resolve this
   },
   icons: {
     icon: "/icon.png", // change this to a separate icon.png when available
+  },
+  // Add a default canonical URL for the root layout if desired,
+  // but individual pages will override this.
+  alternates: {
+    canonical: "/",
   },
 };
 
@@ -99,7 +112,7 @@ export default function RootLayout({
         <footer className="bg-gray-50 border-t border-gray-100 py-6 px-6">
           <div className="container mx-auto text-center text-gray-500 text-sm">
             <p>
-              &copy; {new Date().getFullYear()} FreeColoringPages. All rights
+              © {new Date().getFullYear()} FreeColoringPages. All rights
               reserved.
             </p>
           </div>

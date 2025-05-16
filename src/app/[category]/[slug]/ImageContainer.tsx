@@ -1,3 +1,4 @@
+// File: app/[category]/[slug]/ImageContainer.tsx
 "use client"; // Client component for interactive elements
 
 import Image from "next/image";
