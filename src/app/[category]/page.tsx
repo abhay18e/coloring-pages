@@ -172,7 +172,7 @@ export default async function CategoryPage({
       {/* Header section */}
       <div className="mb-10 border-b border-gray-100 pb-6">
         <h1 className="text-4xl font-bold mb-4 text-gray-900 capitalize">
-          {capitalizedCategoryName} 
+          {capitalizedCategoryName}
         </h1>
         <p className="text-gray-600">
           Browse and download free {displayCategoryName.toLowerCase()} coloring
@@ -196,24 +196,32 @@ export default async function CategoryPage({
               <Link
                 key={image.key}
                 href={`/${category}/${newSlug}`}
-                className="apple-card overflow-hidden hover:scale-[1.03] group flex flex-col"
+                className="group flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:shadow-md  focus-visible:outline-2 focus-visible:outline-blue-500"
+                aria-label={`View coloring page: ${image.name}`}
               >
                 <div className="aspect-square w-full relative bg-gray-50">
                   <Image
                     src={image.src}
-                    alt={
-                      image.alt || `Coloring page thumbnail of ${image.name}`
-                    }
+                    alt={image.alt || `Coloring page of ${image.name}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-contain p-2"
+                    loading="lazy"
+                    placeholder="blur"
                     unoptimized={true}
+                    blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='100%25' height='100%25' fill='%23f9fafb'/%3E%3C/svg%3E"
                   />
                 </div>
-                <div className="p-4 border-t border-gray-50">
-                  <h3 className="font-medium text-gray-800 text-sm truncate group-hover:text-blue-600">
+                <div className="flex flex-col p-4 border-t border-gray-100">
+                  <h3 className="font-medium text-gray-800 text-sm truncate group-hover:text-blue-600 mb-1">
                     {image.name}
                   </h3>
+                  {image.alt &&
+                    image.alt !== `Coloring page of ${image.name}` && (
+                      <p className="text-gray-500 text-xs truncate">
+                        {image.alt}
+                      </p>
+                    )}
                 </div>
               </Link>
             );
