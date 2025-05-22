@@ -8,7 +8,7 @@ import { R2ImageInfo } from "@/types";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
-const IMAGES_PER_PAGE = 10; // Must match the value in app/[category]/page.tsx
+const IMAGES_PER_PAGE = 15; // Must match the value in app/[category]/page.tsx
 const SITE_BASE_URL = "https://freecoloringpages.fun";
 
 const PLACEHOLDER_PARAM = { category: "_placeholder", pageNumber: "2" };

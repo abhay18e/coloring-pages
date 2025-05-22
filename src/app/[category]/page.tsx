@@ -7,7 +7,7 @@ import { listAllR2Images } from "@/lib/r2";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-const IMAGES_PER_PAGE = 10; // Increased number of images per page
+const IMAGES_PER_PAGE = 15; // Increased number of images per page
 const SITE_BASE_URL = "https://freecoloringpages.fun";
 
 // Generate static parameters for each category
@@ -64,13 +64,13 @@ export async function generateMetadata({
       description: pageDescription,
       url: canonicalUrl,
       type: "website", // or "object" if more appropriate for a category page
-      // images: [categoryImages[0]?.src || '/default-category-image.png'] // Add a representative image if possible
+      images: [categoryImages[0]?.src || "/logo.png"], // Add a representative image if possible
     },
     twitter: {
       card: "summary_large_image",
       title: pageTitle,
       description: pageDescription,
-      // images: [categoryImages[0]?.src || '/default-category-image.png']
+      images: [categoryImages[0]?.src || "/logo.png"],
     },
   };
 }
