@@ -297,9 +297,15 @@ export default async function CategoryPaginatedPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
           {imagesForPage.map((image) => {
-            const titlePart = image.name.replace(/\s+/g, "-").toLowerCase();
-            const filenamePart = image.key.split("/").pop() || "";
+            const sanitize = (str: string) => str.replace(/[:*?"<>|\\/]/g, "");
+
+            const titlePart = sanitize(
+              image.name.replace(/\s+/g, "-")
+            ).toLowerCase();
+            const filenamePart = sanitize(image.key.split("/").pop() || "");
             const newSlug = `${titlePart}-${filenamePart}`;
+
+
 
             return (
               <Link

@@ -75,7 +75,7 @@ export default function RootLayout({
         className={`${inter.className} antialiased flex flex-col min-h-screen`}
       >
         {/* Clean, minimal Apple-inspired header */}
-        <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-gray-100">
+        <header className="bg-white shadow-sm sticky top-0 z-100 border-b border-gray-100">
           <nav className="container mx-auto flex justify-between items-center py-4 px-6">
             <Link
               href="/"

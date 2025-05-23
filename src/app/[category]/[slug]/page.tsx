@@ -17,14 +17,16 @@ export async function generateStaticParams() {
   );
 
   // Characters to sanitise: : * ? " < > | \ /
-  const sanitize = (str: string) =>
-    str.replace(/[:*?"<>|\\/]/g, "-");
+  const sanitize = (str: string) => str.replace(/[:*?"<>|\\/]/g, "");
 
   return allImages.map((image) => {
     const titlePart = sanitize(image.name.replace(/\s+/g, "-").toLowerCase());
-    const filenamePart = sanitize(image.key.split("/").pop()?.toLowerCase() || "");
+    const filenamePart = sanitize(
+      image.key.split("/").pop()?.toLowerCase() || ""
+    );
     const newSlug = `${titlePart}-${filenamePart}`;
 
+    console.log(`\nslug == ${newSlug}\n`);
     return {
       category: image.category,
       slug: newSlug,
@@ -122,7 +124,6 @@ export async function generateMetadata({
           alt: image.alt || image.name,
         },
       ],
-      
     },
     twitter: {
       card: "summary_large_image",

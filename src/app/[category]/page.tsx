@@ -16,10 +16,6 @@ export async function generateStaticParams() {
   const categories = new Set<string>();
   allImages.forEach((img) => categories.add(img.category));
 
-  console.log(
-    `Generating static params for ${categories.size} category first pages.`
-  );
-
   return Array.from(categories).map((category) => ({
     category: category,
   }));
@@ -188,8 +184,12 @@ export default async function CategoryPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
           {imagesForPage.map((image) => {
-            const titlePart = image.name.replace(/\s+/g, "-").toLowerCase();
-            const filenamePart = image.key.split("/").pop() || "";
+            const sanitize = (str: string) => str.replace(/[:*?"<>|\\/]/g, "");
+
+            const titlePart = sanitize(
+              image.name.replace(/\s+/g, "-")
+            ).toLowerCase();
+            const filenamePart = sanitize(image.key.split("/").pop() || "");
             const newSlug = `${titlePart}-${filenamePart}`;
 
             return (
@@ -209,18 +209,17 @@ export default async function CategoryPage({
                     loading="lazy"
                     placeholder="blur"
                     unoptimized={true}
-                    blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='100%25' height='100%25' fill='%23f9fafb'/%3E%3C/svg%3E"
+                    blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='100%25' height='100%25' fill='%23fafafa'/%3E%3Cpath d='M0 20h40M20 0v40' stroke='%23f1f5f9' stroke-width='0.5' opacity='0.3'/%3E%3C/svg%3E"
+                    //blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='100%25' height='100%25' fill='%23f9fafb'/%3E%3C/svg%3E"
                   />
                 </div>
                 <div className="flex flex-col p-4 border-t border-gray-100">
-                  <h3 className="font-medium text-gray-800 text-sm truncate group-hover:text-blue-600 mb-1">
+                  <h3 className="font-medium text-gray-800 text-sm  group-hover:text-blue-600 mb-1">
                     {image.name}
                   </h3>
                   {image.alt &&
                     image.alt !== `Coloring page of ${image.name}` && (
-                      <p className="text-gray-500 text-xs truncate">
-                        {image.alt}
-                      </p>
+                      <p className="text-gray-500 text-xs ">{image.alt}</p>
                     )}
                 </div>
               </Link>
