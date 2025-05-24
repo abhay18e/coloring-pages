@@ -26,7 +26,6 @@ export async function generateStaticParams() {
     );
     const newSlug = `${titlePart}-${filenamePart}`;
 
-    console.log(`\nslug == ${newSlug}\n`);
     return {
       category: image.category,
       slug: newSlug,

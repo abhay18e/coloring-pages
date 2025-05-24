@@ -189,12 +189,8 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
             const alt =
               headResponse.Metadata?.alt || `Image in ${category} category`; // Use 'alt' metadata or a default
 
-            console.log(
-              `Metadata fetched for ${key}. Name (from title or fallback): '${nameFromMetadata}', Alt text: '${alt}'.`
-            );
-
             const publicSrc = `${R2_PUBLIC_URL_BASE}/${key}`;
-            console.log(`Generated public URL for ${key}: ${publicSrc}`);
+            //console.log(`Generated public URL for ${key}: ${publicSrc}`);
 
             allImages.push({
               category: category,
@@ -204,7 +200,6 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
               alt: alt,
               key: key,
             });
-            console.log(`Added image info for: ${key}`);
           } catch (headError: any) {
             console.error(
               `Failed to get metadata for ${key}:`,
@@ -220,9 +215,6 @@ export async function listAllR2Images(): Promise<R2ImageInfo[]> {
               alt: `Image in ${category} category (metadata fetch failed)`,
               key: key,
             });
-            console.log(
-              `Added image info with fallback name and default alt for: ${key}`
-            );
           }
         }
       } else {
@@ -294,7 +286,7 @@ export async function getR2Categories(): Promise<string[]> {
     console.log(
       `Found ${sortedCategories.length} unique categories after processing images.`
     );
-    console.log("Categories found:", sortedCategories);
+   // console.log("Categories found:", sortedCategories);
     return sortedCategories;
   } catch (error) {
     console.error("Error in getR2Categories:", error);
